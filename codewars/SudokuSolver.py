@@ -25,24 +25,21 @@ maintainDup = lambda list1, list2: list(filter(lambda element: element in list2,
 
 def sudoku(puzzle):
     pzl = np.array(puzzle)
-    posDict, posLen = possibleVal(pzl)
-    while 1 in posLen.values():
-        for (r,c,b), value in posLen.items():
-            if value == 1:
+    posDict = possibleVal(pzl)
+    while posDict:
+        for (r,c,b), value in posDict.items():
+            if len(value) == 1:
                 pzl[r,c] = posDict[r,c,b][0]
-                posDict, posLen = updatePosVal(posDict, posLen, (r,c,b), posDict[r,c,b][0])
+                posDict = updatePosVal(posDict,(r,c,b), posDict[r,c,b][0])
             else:
-                lst = uniqueRCB(posDict, posLen, (r,c,b))
+                lst = uniqueRCB(posDict, (r,c,b))
                 posDict[r,c,b] = lst
-                posLen[r,c,b] = len(lst)
                 
-        posLen = {k: v for k, v in posLen.items() if v != 0}
-        lst = [ k for k, v in posLen.items() if v != 0]
-        posDict = {k: v for k, v in posDict.items() if k in lst}
+        posDict = {k: v for k, v in posDict.items() if len(v) != 0}
 
     return pzl
 
-def uniqueRCB(posDict : dict, posLen : dict, pos : tuple) -> list:
+def uniqueRCB(posDict : dict, pos : tuple) -> list:
     unique = []
     row,col,box = pos
     for (r,c,b), value in posDict.items():
@@ -86,7 +83,6 @@ def possibleVal(puzzle) -> dict:
     rowPos, colPos = checkPosRC(puzzle)
     boxPos = checkPosBox(puzzle)
     posDict = {}
-    posLen = {}
     for x in range(9):
         for y in range(9):
             if puzzle[x,y] == 0:
@@ -94,17 +90,15 @@ def possibleVal(puzzle) -> dict:
                 lst = maintainDup(rowPos[x],colPos[y])
                 pos = maintainDup(lst,boxPos[box])
                 posDict[(x,y,box)] = list(set(pos))
-                posLen[(x,y,box)] = len(set(pos))
-    return posDict, posLen
+    return posDict
 
-def updatePosVal(posDict:dict, posLen: dict, pos:tuple, value:int) -> dict:
+def updatePosVal(posDict:dict, pos:tuple, value:int) -> dict:
     for (r,c,b) in posDict:
         if (r == pos[0] or c == pos[1]) or b == pos[2]:
             if value in posDict[r,c,b]:
                 posDict[r,c,b].remove(value)
-                posLen[r,c,b] -= 1
                     
-    return posDict, posLen
+    return posDict
 
 def display(puzzle):
     for x in range(1,10):
