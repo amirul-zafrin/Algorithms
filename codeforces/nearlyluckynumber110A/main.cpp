@@ -7,7 +7,7 @@ int main()
   long long number;
   cin >> number;
 
-  int count;
+  int count = 0;
 
   while(number != 0)
   {
